@@ -13,6 +13,9 @@ class Rectangle {
     int width() const { return sdlRect.w; }
     int height() const { return sdlRect.h; }
 
+    int xRight() const { return sdlRect.x + sdlRect.w; }
+    int yBottom() const { return sdlRect.y + sdlRect.h; }
+
     void x(int v) { sdlRect.x = v; }
     void y(int v) { sdlRect.y = v; }
     void width(int v) { sdlRect.w = v; }

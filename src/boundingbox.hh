@@ -8,19 +8,19 @@ class BoundingBox : public Rectangle {
     BoundingBox(int x, int y, int width, int height)
         : Rectangle{x, y, width, height} {}
 
-    bool collisionTop(const Rectangle& rectangle) {
+    bool collisionTop(const Rectangle& rectangle) const {
         return rectangle.y() <= y();
     };
 
-    bool collisionLeft(const Rectangle& rectangle) {
+    bool collisionLeft(const Rectangle& rectangle) const {
         return rectangle.x() <= x();
     }
 
-    bool collisionBottom(const Rectangle& rectangle) {
+    bool collisionBottom(const Rectangle& rectangle) const {
         return (rectangle.y() + rectangle.height()) >= (y() + height());
     }
 
-    bool collisionRight(const Rectangle& rectangle) {
+    bool collisionRight(const Rectangle& rectangle) const {
         return (rectangle.x() + rectangle.width()) >= (x() + width());
     }
 };

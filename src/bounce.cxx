@@ -1,7 +1,9 @@
 #include "ball.hh"
 #include "outlinerenderer.hh"
 #include "sdl.hh"
+#include "solidrenderer.hh"
 #include "text.hh"
+#include "wall.hh"
 #include "window.hh"
 
 #include <algorithm>
@@ -20,7 +22,7 @@ int main(int argc, char* args[]) {
     auto window = new Window("Bounce", 640, 480, white);
 
     BoundingBox ballBoundingBox{0, 0, 640, 400};
-    Ball ball{0, 0, 5, 5, ballBoundingBox};
+    Ball ball{0, 0, 3, 5, ballBoundingBox};
 
     Color black{0x0, 0x0, 0x0, 0x0};
     OutlineRenderer boundingBoxRenderer{ballBoundingBox, black};
@@ -39,6 +41,20 @@ int main(int argc, char* args[]) {
     std::string textVelocityY{"vY: "};
     Text labelVelocityY{fontfile, 18, 100, 435, textColor, textVelocityY};
 
+    Wall verticalWall{300, 100, 40, 200};
+    ball.addWall(&verticalWall);
+
+    Wall horizontalTopWall{220, 30, 200, 40};
+    ball.addWall(&horizontalTopWall);
+
+    Wall horizontalBottomWall{220, 330, 200, 40};
+    ball.addWall(&horizontalBottomWall);
+
+    Color wallColor{0x70, 0x70, 0x70, 0x0};
+    SolidRenderer verticalWallRenderer{verticalWall, wallColor};
+    SolidRenderer horizontalTopWallRenderer{horizontalTopWall, wallColor};
+    SolidRenderer horizontalBottomWallRenderer{horizontalBottomWall, wallColor};
+
     std::vector<Renderable*> renderables;
     renderables.push_back(&ball);
     renderables.push_back(&labelX);
@@ -46,6 +62,9 @@ int main(int argc, char* args[]) {
     renderables.push_back(&labelVelocityX);
     renderables.push_back(&labelVelocityY);
     renderables.push_back(&boundingBoxRenderer);
+    renderables.push_back(&verticalWallRenderer);
+    renderables.push_back(&horizontalTopWallRenderer);
+    renderables.push_back(&horizontalBottomWallRenderer);
 
     SDL_Event event;
     bool run{true};
@@ -80,8 +99,8 @@ int main(int argc, char* args[]) {
         window->clear();
 
         ball.move();
-        labelX.setText(textX + std::to_string(ball.getX()));
-        labelY.setText(textY + std::to_string(ball.getY()));
+        labelX.setText(textX + std::to_string(ball.x()));
+        labelY.setText(textY + std::to_string(ball.y()));
         labelVelocityX.setText(textVelocityX +
                                std::to_string(ball.getVelocityX()));
         labelVelocityY.setText(textVelocityY +

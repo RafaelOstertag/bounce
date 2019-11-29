@@ -2,67 +2,39 @@
 
 #include <stdexcept>
 #include <string>
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
+#ifndef NDEBUG
+#define DEBUG_OUT(x) std::cout << x << std::endl
+#else
+#define DEBUG_OUT(x) ((void)0)
+#endif
 
 Ball::Ball(int startX, int startY, int velocityX, int velocityY,
            const BoundingBox& confinement)
-    : surface{nullptr}, texture{nullptr}, ballBox{},
-      confinement{confinement}, velocityX{velocityX}, velocityY{velocityY} {
-    loadSurface("../data/ball.bmp");
-
-    auto height = surface->clip_rect.h;
-    auto width = surface->clip_rect.w;
-
-    ballBox = Rectangle{startX, startY, width, height};
-}
+    : Rectangle{startX, startY, 20, 20}, solidRenderer{*this, Color{}},
+      confinement{confinement}, walls{}, velocityX{velocityX}, velocityY{
+                                                                   velocityY} {}
 
 Ball::Ball(Ball&& o)
-    : surface{o.surface}, texture{o.texture}, ballBox{o.ballBox},
-      confinement{o.confinement}, velocityX{o.velocityX}, velocityY{
-                                                              o.velocityY} {
-    o.surface = nullptr;
-    o.texture = nullptr;
-}
+    : Rectangle{std::move(o)}, solidRenderer{std::move(o.solidRenderer)},
+      confinement{std::move(o.confinement)}, walls{std::move(o.walls)} {}
 
-Ball::~Ball() {
-    if (surface) {
-        SDL_FreeSurface(surface);
-    }
-    if (texture) {
-        SDL_DestroyTexture(texture);
-    }
-}
+void Ball::addWall(const Wall* wall) { walls.push_back(wall); }
 
 void Ball::render(const Renderer& renderer) {
-    if (texture == nullptr) {
-        convertSurfaceToTexture(renderer);
-    }
-
-    SDL_RenderCopy(renderer, texture, nullptr, ballBox);
+    solidRenderer.render(renderer);
+    renderTail(renderer);
 }
 
 void Ball::move() {
-    ballBox.x(ballBox.x() + velocityX);
-    ballBox.y(ballBox.y() + velocityY);
+    x(x() + velocityX);
+    y(y() + velocityY);
 
-    if (confinement.collisionTop(ballBox)) {
-        ballBox.y(confinement.y());
-        velocityY *= -1;
-    }
-
-    if (confinement.collisionLeft(ballBox)) {
-        ballBox.x(confinement.x());
-        velocityX *= -1;
-    }
-
-    if (confinement.collisionBottom(ballBox)) {
-        ballBox.y(confinement.y() + confinement.height() - ballBox.height());
-        velocityY *= -1;
-    }
-
-    if (confinement.collisionRight(ballBox)) {
-        ballBox.x(confinement.x() + confinement.width() - ballBox.width());
-        velocityX *= -1;
-    }
+    detectAndHandleConfinementCollision();
+    detectAndHandleWallCollisions();
 }
 
 void Ball::increaseXVelocity() {
@@ -97,21 +69,104 @@ void Ball::decreaseYVelocity() {
     }
 }
 
-void Ball::loadSurface(const std::string& filename) {
-    surface = SDL_LoadBMP(filename.c_str());
-    if (surface == nullptr) {
-        throw std::invalid_argument("Cannot load file " + filename + ": " +
-                                    SDL_GetError());
+void Ball::detectAndHandleConfinementCollision() {
+    if (confinement.collisionTop(*this)) {
+        y(confinement.y());
+        velocityY *= -1;
+    }
+
+    if (confinement.collisionLeft(*this)) {
+        x(confinement.x());
+        velocityX *= -1;
+    }
+
+    if (confinement.collisionBottom(*this)) {
+        y(confinement.y() + confinement.height() - height());
+        velocityY *= -1;
+    }
+
+    if (confinement.collisionRight(*this)) {
+        x(confinement.x() + confinement.width() - width());
+        velocityX *= -1;
     }
 }
 
-void Ball::convertSurfaceToTexture(const Renderer& renderer) {
-    texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if (texture == nullptr) {
-        std::string errorMsg{"Unable to create texture: "};
-        throw std::runtime_error(errorMsg + SDL_GetError());
-    }
+void Ball::detectAndHandleWallCollisions() {
+    auto newX = x();
+    auto newVelocityX = velocityX;
 
-    SDL_FreeSurface(surface);
-    surface = nullptr;
+    auto newY = y();
+    auto newVelocityY = velocityY;
+
+    for (auto wall : walls) {
+        Line collisionLine1{
+            Point{double(x()), double(yBottom())},
+            Point{double(x() - velocityX), double(yBottom() - velocityY)}};
+        Line collisionLine2 = Line{
+            Point{double(xRight()), double(yBottom())},
+            Point{double(xRight() - velocityX), double(yBottom() - velocityY)}};
+        if ((wall->collisionTop(collisionLine1) ||
+             wall->collisionTop(collisionLine2)) &&
+            velocityY > 0) {
+            DEBUG_OUT("Wall collision top");
+            newY = wall->y() - height();
+            newVelocityY *= -1;
+        }
+
+        collisionLine1 =
+            Line{Point{double(xRight()), double(y())},
+                 Point{double(xRight() - velocityX), double(y() - velocityY)}};
+        collisionLine2 = Line{
+            Point{double(xRight()), double(yBottom())},
+            Point{double(xRight() - velocityX), double(yBottom() - velocityY)}};
+        if ((wall->collisionLeft(collisionLine1) ||
+             wall->collisionLeft(collisionLine2)) &&
+            velocityX > 0) {
+            DEBUG_OUT("Wall collision left");
+            newX = wall->x() - width();
+            newVelocityX *= -1;
+        }
+
+        collisionLine1 =
+            Line{Point{double(x()), double(y())},
+                 Point{double(x() - velocityX), double(y() - velocityY)}};
+        collisionLine2 =
+            Line{Point{double(xRight()), double(y())},
+                 Point{double(xRight() - velocityX), double(y() - velocityY)}};
+        if ((wall->collisionBottom(collisionLine1) ||
+             wall->collisionBottom(collisionLine2)) &&
+            velocityY < 0) {
+            DEBUG_OUT("Wall collision bottom");
+            newY = wall->yBottom();
+            newVelocityY *= -1;
+        }
+
+        collisionLine1 =
+            Line{Point{double(x()), double(y())},
+                 Point{double(x() - velocityX), double(y() - velocityY)}};
+        collisionLine2 =
+            Line{Point{double(x()), double(yBottom())},
+                 Point{double(x() - velocityX), double(yBottom() - velocityY)}};
+        if ((wall->collisionRight(collisionLine1) ||
+             wall->collisionRight(collisionLine2)) &&
+            velocityX < 0) {
+            DEBUG_OUT("Wall collision right");
+            newX = wall->xRight();
+            newVelocityX *= -1;
+        }
+    }
+    x(newX);
+    y(newY);
+    velocityX = newVelocityX;
+    velocityY = newVelocityY;
+}
+
+void Ball::renderTail(const Renderer& renderer) {
+    SDL_RenderDrawLine(renderer, x(), y(), x() - velocityX, y() - velocityY);
+    SDL_RenderDrawLine(renderer, xRight(), y(), xRight() - velocityX,
+                       y() - velocityY);
+    SDL_RenderDrawLine(renderer, x(), yBottom(), x() - velocityX,
+                       yBottom() - velocityY);
+    SDL_RenderDrawLine(renderer, xRight(), yBottom(), xRight() - velocityX,
+                       yBottom() - velocityY);
 }

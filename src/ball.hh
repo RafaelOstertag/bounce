@@ -4,19 +4,23 @@
 #include "boundingbox.hh"
 #include "rectangle.hh"
 #include "renderable.hh"
+#include "solidrenderer.hh"
+#include "wall.hh"
 
 #include <SDL.h>
 #include <string>
+#include <vector>
 
-class Ball : public Renderable {
+class Ball : public Rectangle, public Renderable {
   public:
     Ball(int startX, int startY, int velocityX, int velocityY,
          const BoundingBox& confinement);
     Ball(const Ball&) = delete;
     Ball(Ball&& o);
-    virtual ~Ball();
+    virtual ~Ball() {}
 
     virtual void render(const Renderer& renderer);
+    void addWall(const Wall* wall);
     void move();
 
     void increaseXVelocity();
@@ -26,19 +30,18 @@ class Ball : public Renderable {
 
     int getVelocityX() const { return velocityX; }
     int getVelocityY() const { return velocityY; }
-    int getX() const { return ballBox.x(); }
-    int getY() const { return ballBox.y(); }
 
   private:
-    SDL_Surface* surface;
-    SDL_Texture* texture;
-    Rectangle ballBox;
+    SolidRenderer solidRenderer;
     BoundingBox confinement;
+    std::vector<const Wall*> walls;
+
     int velocityX;
     int velocityY;
 
-    void loadSurface(const std::string& filename);
-    void convertSurfaceToTexture(const Renderer& renderer);
+    void detectAndHandleConfinementCollision();
+    void detectAndHandleWallCollisions();
+    void renderTail(const Renderer& renderer);
 };
 
 #endif
