@@ -14,7 +14,7 @@
 
 Ball::Ball(int startX, int startY, int velocityX, int velocityY,
            const BoundingBox& confinement)
-    : Rectangle{startX, startY, 20, 20}, solidRenderer{*this, Color{}},
+    : Rectangle{startX, startY, 20, 20}, color{}, solidRenderer{*this, color},
       confinement{confinement}, walls{}, velocityX{velocityX}, velocityY{
                                                                    velocityY} {}
 

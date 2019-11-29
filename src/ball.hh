@@ -32,6 +32,7 @@ class Ball : public Rectangle, public Renderable {
     int getVelocityY() const { return velocityY; }
 
   private:
+    Color color;
     SolidRenderer solidRenderer;
     BoundingBox confinement;
     std::vector<const Wall*> walls;
