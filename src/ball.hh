@@ -41,7 +41,9 @@ class Ball : public Rectangle, public Renderable {
 
     void detectAndHandleConfinementCollision();
     void detectAndHandleWallCollisions();
+#ifndef NDEBUG
     void renderTail(const Renderer& renderer);
+#endif
 };
 
 #endif

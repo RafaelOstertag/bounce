@@ -26,7 +26,9 @@ void Ball::addWall(const Wall* wall) { walls.push_back(wall); }
 
 void Ball::render(const Renderer& renderer) {
     solidRenderer.render(renderer);
+#ifndef NDEBUG
     renderTail(renderer);
+#endif
 }
 
 void Ball::move() {
@@ -161,6 +163,7 @@ void Ball::detectAndHandleWallCollisions() {
     velocityY = newVelocityY;
 }
 
+#ifndef NDEBUG
 void Ball::renderTail(const Renderer& renderer) {
     SDL_RenderDrawLine(renderer, x(), y(), x() - velocityX, y() - velocityY);
     SDL_RenderDrawLine(renderer, xRight(), y(), xRight() - velocityX,
@@ -170,3 +173,4 @@ void Ball::renderTail(const Renderer& renderer) {
     SDL_RenderDrawLine(renderer, xRight(), yBottom(), xRight() - velocityX,
                        yBottom() - velocityY);
 }
+#endif
