@@ -17,7 +17,7 @@ class SolidRenderer : public Renderable {
 
   private:
     const Rectangle& rectangle;
-    const Color& color;
+    const Color color;
 };
 
 #endif
