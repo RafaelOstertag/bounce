@@ -3,8 +3,7 @@
 
 #include <limits>
 
-class Point {
-  public:
+struct Point {
     double x;
     double y;
 };
