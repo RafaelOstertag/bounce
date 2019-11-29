@@ -44,7 +44,7 @@ int main(int argc, char* args[]) {
     Wall verticalWall{300, 100, 40, 200};
     ball.addWall(&verticalWall);
 
-    Wall horizontalTopWall{220, 30, 200, 40};
+    Wall horizontalTopWall{220, 60, 200, 40};
     ball.addWall(&horizontalTopWall);
 
     Wall horizontalBottomWall{220, 330, 200, 40};
