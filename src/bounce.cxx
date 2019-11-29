@@ -12,50 +12,46 @@
 
 constexpr char fontfile[] = "../data/DejaVuSansMono-Bold.ttf";
 
+const Color white{0xFF, 0xFF, 0xFF, 0x0};
+const Color black{0x0, 0x0, 0x0, 0x0};
+const Color textColor{0x70, 0x70, 0x70, 0x0};
+const Color wallColor{0x70, 0x70, 0x70, 0x0};
+
+const std::string textX{"X: "};
+const std::string textY{"Y: "};
+const std::string textVelocityX{"vX: "};
+const std::string textVelocityY{"vY: "};
+
+const Wall verticalWall{300, 100, 40, 200};
+const Wall horizontalTopWall{220, 30, 200, 40};
+const Wall horizontalBottomWall{220, 330, 200, 40};
+
+BoundingBox ballBoundingBox{0, 0, 640, 400};
+Ball ball{0, 0, 3, 5, ballBoundingBox};
+
+SolidRenderer verticalWallRenderer{verticalWall, wallColor};
+SolidRenderer horizontalTopWallRenderer{horizontalTopWall, wallColor};
+SolidRenderer horizontalBottomWallRenderer{horizontalBottomWall, wallColor};
+OutlineRenderer boundingBoxRenderer{ballBoundingBox, black};
+
+std::vector<Renderable*> renderables;
+
 int main(int argc, char* args[]) {
     if (!init_sdl()) {
         return 1;
     }
     atexit(quit_sdl);
 
-    Color white{0xFF, 0xFF, 0xFF, 0x0};
-    auto window = new Window("Bounce", 640, 480, white);
-
-    BoundingBox ballBoundingBox{0, 0, 640, 400};
-    Ball ball{0, 0, 3, 5, ballBoundingBox};
-
-    Color black{0x0, 0x0, 0x0, 0x0};
-    OutlineRenderer boundingBoxRenderer{ballBoundingBox, black};
-
-    Color textColor{0x70, 0x70, 0x70, 0x0};
-
-    std::string textX{"X: "};
+    Window window("Bounce", 640, 480, white);
     Text labelX{fontfile, 18, 0, 405, textColor, textX};
-
-    std::string textY{"Y: "};
     Text labelY{fontfile, 18, 100, 405, textColor, textY};
-
-    std::string textVelocityX{"vX: "};
     Text labelVelocityX{fontfile, 18, 0, 435, textColor, textVelocityX};
-
-    std::string textVelocityY{"vY: "};
     Text labelVelocityY{fontfile, 18, 100, 435, textColor, textVelocityY};
 
-    Wall verticalWall{300, 100, 40, 200};
     ball.addWall(&verticalWall);
-
-    Wall horizontalTopWall{220, 30, 200, 40};
     ball.addWall(&horizontalTopWall);
-
-    Wall horizontalBottomWall{220, 330, 200, 40};
     ball.addWall(&horizontalBottomWall);
 
-    Color wallColor{0x70, 0x70, 0x70, 0x0};
-    SolidRenderer verticalWallRenderer{verticalWall, wallColor};
-    SolidRenderer horizontalTopWallRenderer{horizontalTopWall, wallColor};
-    SolidRenderer horizontalBottomWallRenderer{horizontalBottomWall, wallColor};
-
-    std::vector<Renderable*> renderables;
     renderables.push_back(&ball);
     renderables.push_back(&labelX);
     renderables.push_back(&labelY);
@@ -96,9 +92,10 @@ int main(int argc, char* args[]) {
                 }
             }
         }
-        window->clear();
 
+        window.clear();
         ball.move();
+
         labelX.setText(textX + std::to_string(ball.x()));
         labelY.setText(textY + std::to_string(ball.y()));
         labelVelocityX.setText(textVelocityX +
@@ -107,10 +104,9 @@ int main(int argc, char* args[]) {
                                std::to_string(ball.getVelocityY()));
 
         std::for_each(begin(renderables), end(renderables),
-                      [window](auto r) { window->render(*r); });
+                      [&window](auto r) { window.render(*r); });
 
-        window->update();
+        window.update();
         SDL_Delay(16);
     }
-    delete window;
 }
