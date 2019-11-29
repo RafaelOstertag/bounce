@@ -48,6 +48,9 @@ void Ball::increaseXVelocity() {
 }
 
 void Ball::decreaseXVelocity() {
+    if (velocityX == -1 || velocityX == 1)
+        return;
+
     if (velocityX > 0) {
         velocityX--;
     } else {
@@ -64,6 +67,8 @@ void Ball::increaseYVelocity() {
 }
 
 void Ball::decreaseYVelocity() {
+    if (velocityY == -1 || velocityX == 1)
+        return;
     if (velocityY > 0) {
         velocityY--;
     } else {
