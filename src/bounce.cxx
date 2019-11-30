@@ -1,4 +1,5 @@
 #include "ball.hh"
+#include "config.h"
 #include "outlinerenderer.hh"
 #include "sdl.hh"
 #include "solidrenderer.hh"
@@ -7,6 +8,7 @@
 #include "window.hh"
 
 #include <algorithm>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -37,6 +39,8 @@ OutlineRenderer boundingBoxRenderer{ballBoundingBox, black};
 std::vector<Renderable*> renderables;
 
 int main(int argc, char* args[]) {
+    std::cout << "Bounce " << VERSION_MAJOR << "." << VERSION_MINOR << "."
+              << VERSION_PATCH << std::endl;
     if (!init_sdl()) {
         return 1;
     }

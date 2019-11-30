@@ -1,8 +1,8 @@
 #ifndef __CONFIG_HH
 #define __CONFIG_HH
 
-#define VERSION_MAJOR @Bounce_VERSION_MAJOR @
-#define VERSION_MINOR @Bounce_VERSION_MINOR @
-#define VERSION_PATCH @Bounce_VERSION_PATCH @
+#define VERSION_MAJOR "@Bounce_VERSION_MAJOR@"
+#define VERSION_MINOR "@Bounce_VERSION_MINOR@"
+#define VERSION_PATCH "@Bounce_VERSION_PATCH@"
 
 #endif
