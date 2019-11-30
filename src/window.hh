@@ -14,7 +14,10 @@ class Window {
            const Color& bgColor);
     ~Window();
     Window(const Window&) = delete;
+    Window& operator=(const Window&) = delete;
+
     Window(Window&& o);
+    Window& operator=(Window&&) = delete;
 
     void clear();
     void render(Renderable& renderable) const;

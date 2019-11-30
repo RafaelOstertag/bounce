@@ -19,8 +19,8 @@ Ball::Ball(int startX, int startY, int velocityX, int velocityY,
                                                                    velocityY} {}
 
 Ball::Ball(Ball&& o)
-    : Rectangle{std::move(o)}, color{o.color}, solidRenderer{std::move(
-                                                   o.solidRenderer)},
+    : Rectangle{std::move(o)}, color{std::move(o.color)},
+      solidRenderer{std::move(o.solidRenderer)},
       confinement{std::move(o.confinement)}, walls{std::move(o.walls)} {}
 
 void Ball::addWall(const Wall* wall) { walls.push_back(wall); }

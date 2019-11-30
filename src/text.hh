@@ -14,7 +14,11 @@ class Text : public Renderable {
     Text(const std::string& ttfFilepath, int size, int x, int y,
          const Color& color, const std::string& text = std ::string{});
     Text(const Text&) = delete;
+    Text& operator=(const Text&) = delete;
+
     Text(Text&& o);
+    Text& operator=(Text&& o);
+
     virtual ~Text();
 
     void setText(const std::string& text);

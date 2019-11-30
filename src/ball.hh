@@ -16,7 +16,11 @@ class Ball : public Rectangle, public Renderable {
     Ball(int startX, int startY, int velocityX, int velocityY,
          const BoundingBox& confinement);
     Ball(const Ball&) = delete;
+    Ball& operator=(const Ball&) = delete;
+
     Ball(Ball&& o);
+    Ball& operator=(Ball&& o) = delete;
+
     virtual ~Ball() {}
 
     virtual void render(const Renderer& renderer);

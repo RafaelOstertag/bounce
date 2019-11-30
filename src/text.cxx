@@ -21,6 +21,20 @@ Text::Text(Text&& o)
     texture = nullptr;
 }
 
+Text& Text::operator=(Text&& o) {
+    font = o.font;
+    o.font = nullptr;
+
+    texture = o.texture;
+    o.texture = nullptr;
+
+    color = o.color;
+    textRectangle = o.textRectangle;
+    text = std::move(o.text);
+
+    return *this;
+}
+
 Text::~Text() {
     if (font) {
         TTF_CloseFont(font);
